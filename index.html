@@ -1303,6 +1303,8 @@ function submitHR(){
   renderHRTable();
   populateEmpDropdowns();
 }
+// 全域暫存目前產生的員工連結（避免 onclick 裡嵌入超長字串）
+let _currentEmpUrl='';
 function copyEmpLink(id,name){
   const base='https://ttcr-taichung.github.io/HRMS/employee.html';
   // ── 收集這位員工的所有資料，嵌入連結 ──
@@ -1317,8 +1319,10 @@ function copyEmpLink(id,name){
     leaves:allLeaves.filter(l=>l.empName===emp.name),
     quotas:{[id]:allQuotas[id]||{}}
   };
-  const encoded=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-  const url=`${base}?id=${id}&d=${encoded}`;
+  // URL 安全的 base64：+ → - ，/ → _ ，= 去除
+  const raw=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  const safe=raw.replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  _currentEmpUrl=`${base}?id=${encodeURIComponent(id)}&d=${safe}`;
   // ── 顯示連結視窗 ──
   let modal=document.getElementById('empLinkModal');
   if(!modal){
@@ -1330,10 +1334,10 @@ function copyEmpLink(id,name){
   modal.innerHTML=`
     <div style="background:white;border-radius:16px;padding:28px;max-width:520px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.2)">
       <div style="font-size:1.05rem;font-weight:700;color:#0369a1;margin-bottom:16px">🔗 ${name} 的員工系統專屬連結</div>
-      <div style="background:#f0f9ff;border:2px solid #bae6fd;border-radius:10px;padding:14px;margin-bottom:16px;word-break:break-all;font-size:.78rem;color:#0c4a6e;font-family:monospace;line-height:1.6;max-height:120px;overflow-y:auto" id="empLinkText">${base}?id=${id}&d=（資料已嵌入）</div>
+      <div style="background:#f0f9ff;border:2px solid #bae6fd;border-radius:10px;padding:14px;margin-bottom:16px;word-break:break-all;font-size:.78rem;color:#0c4a6e;font-family:monospace;line-height:1.6" id="empLinkText">${base}?id=${id}&d=（員工資料已嵌入連結）</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button onclick="navigator.clipboard&&navigator.clipboard.writeText('${url.replace(/'/g,"\\'")}').then(()=>{this.textContent='✅ 已複製！';setTimeout(()=>this.textContent='📋 複製連結',2000)}).catch(()=>{})" style="flex:1;padding:10px;background:#0ea5e9;color:white;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;min-width:120px">📋 複製連結</button>
-        <button onclick="window.open('${url}','_blank')" style="flex:1;padding:10px;background:#10b981;color:white;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;min-width:120px">🚀 直接開啟</button>
+        <button onclick="navigator.clipboard.writeText(_currentEmpUrl).then(()=>{this.textContent='✅ 已複製！';setTimeout(()=>this.textContent='📋 複製連結',2000)})" style="flex:1;padding:10px;background:#0ea5e9;color:white;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;min-width:120px">📋 複製連結</button>
+        <button onclick="window.open(_currentEmpUrl,'_blank')" style="flex:1;padding:10px;background:#10b981;color:white;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;min-width:120px">🚀 直接開啟</button>
         <button onclick="document.getElementById('empLinkModal').style.display='none'" style="padding:10px 18px;background:#f1f5f9;color:#64748b;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer">關閉</button>
       </div>
       <div style="margin-top:12px;font-size:.74rem;color:#94a3b8">💡 連結已包含員工個人資料，傳給員工直接開啟即可，不需登入</div>
