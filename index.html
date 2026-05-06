@@ -182,7 +182,7 @@ table.gen tr:hover td{background:#f8fafc;}
     <h1>🏢 人力資源管理系統</h1>
     <div class="sub">管理者後台 — 人事資料 · 考勤 · 請假</div>
   </div>
-  <a href="https://ttcr-taichung.github.io/HRMS/employee.html" target="_blank" class="emp-link">👤 前往員工頁面 →</a>
+  <a href="https://ttcr-taichung.github.io/HR/" target="_blank" class="emp-link">👤 前往員工頁面 →</a>
 </div>
 
 <!-- ═══════════ TAB NAV ═══════════ -->
@@ -1306,7 +1306,7 @@ function submitHR(){
 // 全域暫存目前產生的員工連結（避免 onclick 裡嵌入超長字串）
 let _currentEmpUrl='';
 function copyEmpLink(id,name){
-  const base='https://ttcr-taichung.github.io/HRMS/employee.html';
+  const base='https://ttcr-taichung.github.io/HR/';
   // ── 收集這位員工的所有資料，嵌入連結 ──
   const emp=hrRecords.find(r=>r.id===id);
   if(!emp){showToast('⚠️ 找不到員工資料',false);return;}
